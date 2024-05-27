@@ -1,0 +1,11 @@
+{
+  "name": "bonusly-sweep",
+  "version": "1.0.0",
+  "description": "Sweeps bonusly points",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Kenny joseph",
+  "license": "MIT"
+}

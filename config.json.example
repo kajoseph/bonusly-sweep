@@ -1,0 +1,12 @@
+{
+  "apiKey": "your-key",
+  "schedule": {
+    "dayOfMonth": 27,
+    "timeOfDay": "4:00 PM",
+    "frequency": 60000
+  },
+  "recipients": [
+    "person1@example.com",
+    "person2@example.com"
+  ]
+}

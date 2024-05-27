@@ -1,0 +1,12 @@
+[Unit]
+Description=Bonusly Monthly Sweep
+After=network.target
+
+[Service]
+User=kjoseph
+ExecStart=/home/kjoseph/.nvm/versions/node/v18.17.1/bin/node /home/kjoseph/bonusly.js
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
