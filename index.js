@@ -4,6 +4,7 @@ const config = require('./config.json');
 
 const DaysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const MonthsOfYear = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const ONE_MINUTE = 60 * 1000;
 
 class Bonusly {
   apiKey = config.apiKey;
@@ -81,12 +82,15 @@ class Bonusly {
   async runSchedule() {
     while (true) {
       const now = new Date();
-      if (now > new Date(`${now.getFullYear()}-${now.getMonth() + 1}-${this.schedule.dayOfMonth} ${this.schedule.timeOfDay} EST`)) {
+      const exDate = this.schedule.dayOfMonth <= 0 ?
+        new Date(new Date(new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(this.schedule.dayOfMonth || -0)).toDateString() + ` ${this.schedule.timeOfDay} EST`) :
+        new Date(new Date(new Date().setDate(this.schedule.dayOfMonth)).toDateString() + ` ${this.schedule.timeOfDay} EST`);
+      if (now > exDate) {
         await this.executeBonuses();
       } else {
-        console.log('Not time to execute bonuses yet');
+        console.log('Not time to execute bonuses yet. Next time:', exDate);
       }
-      await new Promise(resolve => setTimeout(resolve, this.schedule.frequency));
+      await new Promise(resolve => setTimeout(resolve, this.schedule.frequency * ONE_MINUTE));
     }
   }
 }

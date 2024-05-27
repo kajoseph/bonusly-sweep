@@ -3,7 +3,7 @@
   "schedule": {
     "dayOfMonth": 27,
     "timeOfDay": "4:00 PM",
-    "frequency": 60000
+    "frequency": 1
   },
   "recipients": [
     "person1@example.com",
