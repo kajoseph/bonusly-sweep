@@ -46,13 +46,17 @@ class Bonusly {
     return (await this._doRequest(`/users?email=${email}`, 'GET'))[0];
   }
 
-  async giveBonusToUser(email, amount, reason) {
+  async giveBonusToUser(email, amount, reason, testRun) {
     const user = await this.getUserByEmail(email);
     reason = `+${amount} @${user.username} ${reason}`;
-    return this._doRequest('/bonuses', 'POST', { reason });
+    if (testRun) {
+      console.log(`TEST: Sending bonus to ${email}: ${reason}`);
+    } else {
+      await this._doRequest('/bonuses', 'POST', { reason });
+    }
   }
 
-  async executeBonuses() {
+  async executeBonuses(testRun) {
     try {
       let totalSent = 0;
       let totalReceipts = 0;
@@ -65,7 +69,7 @@ class Bonusly {
       for (const recipient of this.recipients) {
         try {
           const reason = this.reasons[Math.floor(Math.random() * this.reasons.length)](recipient);
-          await this.giveBonusToUser(recipient.email, amt, reason);
+          await this.giveBonusToUser(recipient.email, amt, reason, testRun);
           totalSent += amt;
           totalReceipts++;
         } catch (e) {
@@ -78,14 +82,15 @@ class Bonusly {
     }
   }
 
-  async runSchedule() {
+  async runSchedule(testRun) {
     while (true) {
       const now = new Date();
       const exDate = this.schedule.dayOfMonth <= 0 ?
         new Date(new Date(new Date(new Date().setMonth(new Date().getMonth() + 1)).setDate(this.schedule.dayOfMonth || -0)).toDateString() + ` ${this.schedule.timeOfDay} EST`) :
         new Date(new Date(new Date().setDate(this.schedule.dayOfMonth)).toDateString() + ` ${this.schedule.timeOfDay} EST`);
-      if (now > exDate) {
-        await this.executeBonuses();
+      if (now > exDate || testRun) {
+        await this.executeBonuses(testRun);
+        if (testRun) return;
       } else {
         console.log('Not time to execute bonuses yet. Next time:', exDate);
       }
@@ -94,4 +99,5 @@ class Bonusly {
   }
 }
 
-new Bonusly().runSchedule();
+const isTestRun = process.argv.includes('--test');
+new Bonusly().runSchedule(isTestRun);
