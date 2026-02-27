@@ -13,16 +13,15 @@ class Bonusly {
 
   baseUrl = 'https://bonus.ly/api/v1';
   reasons = [
-    () => 'Keep up the good work!',
-    () => 'Thanks for the reviews!',
-    () => 'Thanks for all your hard work!',
-    () => 'Thanks for being awesome!',
-    () => 'Great job!',
-    () => 'Cheers!',
-    () => `Happy ${DaysOfWeek[new Date().getDay()]}!`,
-    () => `Happy ${MonthsOfYear[new Date().getDate() >= 27 ? new Date().getMonth() + 1 : new Date().getMonth()]}!`,
-  ]
-  
+    (recipient) => `Nice month, ${recipient.name}. Keep up the great work! #passionate #deliveringexcellence`,
+    (recipient) => `Thanks for the quality reviews this month, ${recipient.name}! #teamwork #collaborative`,
+    (recipient) => `Thanks for all your hard work this month, ${recipient.name}! #deliveringexcellence #success`,
+    (recipient) => `Thanks for all your help this month, ${recipient.name}! #vision #passionate`,
+    (recipient) => `Another month in the books. Thanks for being awesome! #success`,
+    (recipient) => `Happy ${DaysOfWeek[new Date().getDay()]}! Here's a coffee on me. #teamwork`,
+    (recipient) => `Cheers to a great month! Let's make ${MonthsOfYear[new Date().getDate() >= 27 ? new Date().getMonth() + 1 : new Date().getMonth()]} great! #vision #success`,
+  ];
+
   async _doRequest(path, method, body) {
     let res = await fetch(`${this.baseUrl + path}`, {
       method,
@@ -65,12 +64,12 @@ class Bonusly {
       }
       for (const recipient of this.recipients) {
         try {
-          const reason = this.reasons[Math.floor(Math.random() * this.reasons.length)]();
-          await this.giveBonusToUser(recipient, amt, reason);
+          const reason = this.reasons[Math.floor(Math.random() * this.reasons.length)](recipient);
+          await this.giveBonusToUser(recipient.email, amt, reason);
           totalSent += amt;
           totalReceipts++;
         } catch (e) {
-          console.error(`Error sending bonus to ${recipient}`, e);
+          console.error(`Error sending bonus to ${recipient.email}`, e);
         }
       }
       console.log(`Sent a total of ${totalSent} points to ${totalReceipts} recipients!`);

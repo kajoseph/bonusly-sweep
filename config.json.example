@@ -6,7 +6,13 @@
     "frequency": 1
   },
   "recipients": [
-    "person1@example.com",
-    "person2@example.com"
+    {
+      "email": "person1@example.com",
+      "name": "Person 1"
+    },
+    {
+      "email": "person2@example.com",
+      "name": "Person 2"
+    }
   ]
 }
