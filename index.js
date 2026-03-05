@@ -18,7 +18,7 @@ class Bonusly {
     (recipient) => `Thanks for all your hard work this month, ${recipient.name}! #deliveringexcellence #success`,
     (recipient) => `Thanks for all your help this month, ${recipient.name}! #vision #passionate`,
     (recipient) => `Another month in the books. Thanks for being awesome! #success`,
-    (recipient) => `Happy ${DaysOfWeek[new Date().getDay()]}! Here's a coffee on me. #teamwork`,
+    (recipient) => `Happy ${DaysOfWeek[new Date().getDay()]} and cheers to a great month! Here's a coffee on me. #teamwork`,
     (recipient) => `Cheers to a great month! Let's make ${MonthsOfYear[new Date().getDate() >= 27 ? new Date().getMonth() + 1 : new Date().getMonth()]} great! #vision #success`,
   ];
 
@@ -46,11 +46,15 @@ class Bonusly {
     return (await this._doRequest(`/users?email=${email}`, 'GET'))[0];
   }
 
-  async giveBonusToUser(email, amount, reason, testRun) {
-    const user = await this.getUserByEmail(email);
-    reason = `+${amount} @${user.username} ${reason}`;
+  async giveBonusToUsers(emails, amount, reason, testRun) {
+    const users = await Promise.all(emails.map(async (email) => {
+      const user = await this.getUserByEmail(email);
+      return user.username;
+    }));
+    amount = Math.floor(amount / emails.length);
+    reason = `+${amount} @${users.join(', @')} ${reason}`;
     if (testRun) {
-      console.log(`TEST: Sending bonus to ${email}: ${reason}`);
+      console.log(`TEST: Sending bonus to ${emails}: ${reason}`);
     } else {
       await this._doRequest('/bonuses', 'POST', { reason });
     }
@@ -68,10 +72,16 @@ class Bonusly {
       }
       for (const recipient of this.recipients) {
         try {
-          const reason = this.reasons[Math.floor(Math.random() * this.reasons.length)](recipient);
-          await this.giveBonusToUser(recipient.email, amt, reason, testRun);
+          const groupName = recipient.groupNames ? recipient.groupNames[Math.floor(Math.random() * recipient.groupNames.length)] : 'everyone';
+          const name = Array.isArray(recipient.emails) ? groupName : recipient.name;
+          let reason = this.reasons[Math.floor(Math.random() * this.reasons.length)]({ name });
+          if (recipient.groupTags) {
+            reason += ` ${recipient.groupTags.join(' ')}`;
+          }
+          const emails = recipient.emails || [recipient.email];
+          await this.giveBonusToUsers(emails, amt, reason, testRun);
           totalSent += amt;
-          totalReceipts++;
+          totalReceipts += emails.length;
         } catch (e) {
           console.error(`Error sending bonus to ${recipient.email}`, e);
         }

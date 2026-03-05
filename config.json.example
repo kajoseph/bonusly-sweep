@@ -13,6 +13,11 @@
     {
       "email": "person2@example.com",
       "name": "Person 2"
+    },
+    {
+      "emails": ["person3@example.com", "person4@example.com"],
+      "groupNames": ["team", "gang", "gents", "ladies"],
+      "groupTags": ["#go-team"]
     }
   ]
 }
